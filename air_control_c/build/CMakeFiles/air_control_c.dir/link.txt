@@ -1,0 +1,1 @@
+/usr/bin/cc -Wl,--dependency-file=CMakeFiles/air_control_c.dir/link.d CMakeFiles/air_control_c.dir/src/main.c.o CMakeFiles/air_control_c.dir/src/functions.c.o -o air_control_c  -lm

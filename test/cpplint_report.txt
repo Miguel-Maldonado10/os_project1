@@ -1,6 +1,42 @@
+../air_control_c/include/functions.h:1:  #ifndef header guard has wrong style, please use: AIR_CONTROL_C_INCLUDE_FUNCTIONS_H_  [build/header_guard] [5]
+../air_control_c/include/functions.h:10:  #endif line should be "#endif  // AIR_CONTROL_C_INCLUDE_FUNCTIONS_H_"  [build/header_guard] [5]
+../air_control_c/src/functions.c:10:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
+../air_control_c/src/functions.c:25:  Missing username in TODO; it should look like "// TODO(my_username): Stuff."  [readability/todo] [2]
+../air_control_c/src/functions.c:25:  TODO(my_username) should be followed by a space  [whitespace/todo] [2]
+../air_control_c/src/functions.c:31:  Missing space before ( in if(  [whitespace/parens] [5]
+../air_control_c/src/functions.c:39:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
+../air_control_c/src/functions.c:62:  Missing username in TODO; it should look like "// TODO(my_username): Stuff."  [readability/todo] [2]
+../air_control_c/src/functions.c:71:  Missing space before ( in while(  [whitespace/parens] [5]
+../air_control_c/src/functions.c:72:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
+../air_control_c/src/functions.c:73:  Missing space before ( in if(  [whitespace/parens] [5]
+../air_control_c/src/functions.c:74:  Missing space before ( in if(  [whitespace/parens] [5]
+../air_control_c/src/functions.c:77:  If an else has a brace on one side, it should have it on both  [readability/braces] [5]
+../air_control_c/src/functions.c:78:  { should almost always be at the end of the previous line  [whitespace/braces] [4]
+../air_control_c/src/functions.c:81:  Missing space before ( in if(  [whitespace/parens] [5]
+../air_control_c/src/functions.c:89:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
+../air_control_c/src/functions.c:90:  Missing space before ( in if(  [whitespace/parens] [5]
+../air_control_c/src/functions.c:98:  If an else has a brace on one side, it should have it on both  [readability/braces] [5]
+../air_control_c/src/functions.c:99:  { should almost always be at the end of the previous line  [whitespace/braces] [4]
+../air_control_c/src/functions.c:102:  Missing space before ( in if(  [whitespace/parens] [5]
+../air_control_c/src/functions.c:105:  Line ends in whitespace.  Consider deleting these extra spaces.  [whitespace/end_of_line] [4]
+../air_control_c/src/functions.c:110:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
+../air_control_c/src/functions.c:111:  Missing space before ( in if(  [whitespace/parens] [5]
+../air_control_c/src/main.c:15:  Missing username in TODO; it should look like "// TODO(my_username): Stuff."  [readability/todo] [2]
+../air_control_c/src/main.c:18:  Missing username in TODO; it should look like "// TODO(my_username): Stuff."  [readability/todo] [2]
+../air_control_c/src/main.c:29:  Line ends in whitespace.  Consider deleting these extra spaces.  [whitespace/end_of_line] [4]
+../air_control_c/src/main.c:33:  Missing username in TODO; it should look like "// TODO(my_username): Stuff."  [readability/todo] [2]
+../air_control_c/src/main.c:49:  Missing username in TODO; it should look like "// TODO(my_username): Stuff."  [readability/todo] [2]
 Skipping input '../ground_control/include/functions.h': Can't open for reading
 Skipping input '../ground_control/src/functions.c': Can't open for reading
+../ground_control/src/main.c:24:  You don't need a ; after a }  [readability/braces] [4]
+../ground_control/src/main.c:31:  Missing username in TODO; it should look like "// TODO(my_username): Stuff."  [readability/todo] [2]
+../ground_control/src/main.c:57:  Missing username in TODO; it should look like "// TODO(my_username): Stuff."  [readability/todo] [2]
+../ground_control/src/main.c:61:  Missing space before ( in if(  [whitespace/parens] [5]
+../ground_control/src/main.c:65:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
+../ground_control/src/main.c:116:  Line ends in whitespace.  Consider deleting these extra spaces.  [whitespace/end_of_line] [4]
+../ground_control/src/main.c:126:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
 Done processing ../air_control_c/include/functions.h
 Done processing ../air_control_c/src/functions.c
 Done processing ../air_control_c/src/main.c
 Done processing ../ground_control/src/main.c
+Total errors found: 35
