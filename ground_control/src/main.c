@@ -33,19 +33,24 @@ void Traffic(int signum) {
   // Check if there are 10 or more waiting planes to send a signal and increment
   // planes. Ensure signals are sent and planes are incremented only if the
   // total number of planes has not been exceeded.
-
+  // printf("Traffic handler invoked\n");
+  // printf("Planes: %d, Takeoffs: %d\n", planes, takeoffs);
   traffic += 1;
-  int waiting_planes = planes - takeoffs;
-  if (waiting_planes >= 10) {
+  if (planes >= 10) {
     printf("RUNWAY OVERLOADED\n");
   }
   if (planes < PLANES_LIMIT) {
+    // printf("Adding 5 planes to the runway\n");
     planes += 5;
     pid_t radio_pid = shm_ptr[1];
     if (radio_pid > 0) {
+      // printf("sendig Sig 2 to the raido PID to add planes");
       kill(radio_pid, SIGUSR2);
     }
   }
+  // else {
+  //   // printf("Cannot add more planes, limit reached\n");
+  // }
 }
 
 int main(int argc, char* argv[]) {
@@ -109,6 +114,11 @@ int main(int argc, char* argv[]) {
     perror("setitimer");
     exit(1);
   } 
+
+  // 4. Infinite loop to keep the program running.
+  while (1) {
+    pause();  // Wait for signals
+  }
 
   // Traffic:
   // a.    Calculate the number of planes waiting.

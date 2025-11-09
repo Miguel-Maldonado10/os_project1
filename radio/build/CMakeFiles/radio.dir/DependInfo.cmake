@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/evelyn30v/OS/PP1/radio/src/main.c" "CMakeFiles/radio.dir/src/main.c.o" "gcc" "CMakeFiles/radio.dir/src/main.c.o.d"
+  "/home/miguel/pixel-art-orbit-planner/os_project1/radio/src/main.c" "CMakeFiles/radio.dir/src/main.c.o" "gcc" "CMakeFiles/radio.dir/src/main.c.o.d"
   "" "radio" "gcc" "CMakeFiles/radio.dir/link.d"
   )
 

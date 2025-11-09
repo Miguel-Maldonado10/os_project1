@@ -38,7 +38,7 @@ int main() {
     perror("fork failed");
     exit(1);
   } else if (radio_pid == 0) {
-    execl("./radio", "radio", "/air_control", NULL);
+    execl("./radio", "radio", "/air_control_shm", NULL);
     perror("execl failed");
     exit(1);
   }
@@ -46,17 +46,16 @@ int main() {
   Set_Radio_PID(radio_pid);
   printf("radio launched with PID %d\n", radio_pid);
 
-
   // TODO 6: Launch 5 threads which will be the controllers; each thread will
   // execute the TakeOffsFunction().
 
   pthread_t takeoff_threads[5];
   for (int i = 0; i < 5; i++) {
     pthread_create(&takeoff_threads[i], NULL, TakeOffsFunction, NULL);
+    // printf("takeoff thread %d launched\n", i);
   }
   for (int i = 0; i < 5; i++) {
     pthread_join(takeoff_threads[i], NULL);
   }
-
   shm_unlink("/air_control_shm");
 }

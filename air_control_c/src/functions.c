@@ -25,6 +25,8 @@ void MemoryCreate() {
   // TODO2: create the shared memory segment, configure it and store the PID of
   // the process in the first position of the memory block.
 
+  shm_unlink("/air_control_shm");
+
   shm_fd = shm_open("/air_control_shm", O_CREAT | O_RDWR, 0666);
   if(ftruncate(shm_fd, SHM_SIZE) == -1) {
     perror("ftruncate failed");
@@ -56,7 +58,7 @@ void SigHandler2(int signal) {
   planes += 5;
   printf("SIGUSR2 received: planes on runway increased to %d\n", planes);
 }
-void* TakeOffsFunction() {
+void* TakeOffsFunction(void* arg) {
   // TODO: implement the logic to control a takeoff thread
   //    Use a loop that runs while total_takeoffs < TOTAL_TAKEOFFS
   //    Use runway1_lock or runway2_lock to simulate a locked runway
@@ -66,9 +68,11 @@ void* TakeOffsFunction() {
   //    Send SIGUSR1 every 5 local takeoffs
   //    Send SIGTERM when the total takeoffs target is reached
 
-  while(total_takeoffs < TOTAL_TAKEOFFS) {
+  while(total_takeoffs <= TOTAL_TAKEOFFS) {
+    // printf("Thread %ld attempting to acquire runway lock. Planes on runway: %d\n", pthread_self(), planes);
     if(pthread_mutex_trylock(&runway1_lock) != 0) {
       if(pthread_mutex_trylock(&runway2_lock) != 0) {
+        // printf("Both runways busy, thread %ld waiting...\n", pthread_self());
         usleep(1000);
       } else  // runway 2 locked
       {
@@ -85,6 +89,7 @@ void* TakeOffsFunction() {
         printf("Takeoff from runway 2. Planes on runway: %d. Local takeoffs: %d. Total takeoffs: %d\n", planes, takeoffs, total_takeoffs);
         if(takeoffs % 5 == 0) {
           kill(shm_ptr[2], SIGUSR1);  // Notify ground_control
+          kill(shm_ptr[1], SIGUSR1);  // Notify ground_control
         }
         pthread_mutex_unlock(&state_lock);
         sleep(1);  // Simulate takeoff time
@@ -94,7 +99,7 @@ void* TakeOffsFunction() {
     {
       // Takeoff from runway 1
       pthread_mutex_lock(&state_lock);
-      if(total_takeoffs >= TOTAL_TAKEOFFS) {
+      if(total_takeoffs >= TOTAL_TAKEOFFS && planes > 0) {
         pthread_mutex_unlock(&state_lock);
         pthread_mutex_unlock(&runway1_lock);
         break; 
@@ -105,6 +110,7 @@ void* TakeOffsFunction() {
       printf("Takeoff from runway 1. Planes on runway: %d. Local takeoffs: %d. Total takeoffs: %d\n", planes, takeoffs, total_takeoffs);
       if(takeoffs % 5 == 0) {
         kill(shm_ptr[2], SIGUSR1);  // Notify ground_control
+        kill(shm_ptr[1], SIGUSR1);
       }
       pthread_mutex_unlock(&state_lock);
       sleep(1);  // Simulate takeoff time
@@ -113,5 +119,6 @@ void* TakeOffsFunction() {
   }
   kill(shm_ptr[1], SIGTERM);  // Notify radio that takeoffs are done
   close(shm_fd);
+  munmap(shm_ptr, SHM_SIZE);
   return NULL;
 }
