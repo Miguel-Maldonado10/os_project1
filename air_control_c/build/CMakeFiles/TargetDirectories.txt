@@ -1,0 +1,3 @@
+/home/miguel/pixel-art-orbit-planner/os_project1/air_control_c/build/CMakeFiles/air_control_c.dir
+/home/miguel/pixel-art-orbit-planner/os_project1/air_control_c/build/CMakeFiles/edit_cache.dir
+/home/miguel/pixel-art-orbit-planner/os_project1/air_control_c/build/CMakeFiles/rebuild_cache.dir

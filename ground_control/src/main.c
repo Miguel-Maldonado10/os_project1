@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <signal.h>
+#include <string.h>
+#include <sys/time.h>
 
 #define PLANES_LIMIT 20
 #define SHM_SIZE 3 * sizeof(int)
@@ -25,9 +27,6 @@ void SigUsr1Handler(int signum) {
   takeoffs += 5;
 }
 
-
-
-
 void Traffic(int signum) {
   // TODO:
   // Calculate the number of waiting planes.
@@ -35,7 +34,18 @@ void Traffic(int signum) {
   // planes. Ensure signals are sent and planes are incremented only if the
   // total number of planes has not been exceeded.
 
-
+  traffic += 1;
+  int waiting_planes = planes - takeoffs;
+  if (waiting_planes >= 10) {
+    printf("RUNWAY OVERLOADED\n");
+  }
+  if (planes < PLANES_LIMIT) {
+    planes += 5;
+    pid_t radio_pid = shm_ptr[1];
+    if (radio_pid > 0) {
+      kill(radio_pid, SIGUSR2);
+    }
+  }
 }
 
 int main(int argc, char* argv[]) {
@@ -78,4 +88,30 @@ int main(int argc, char* argv[]) {
   }
 
   // 2. Configure the timer to execute the Traffic function.
+
+  //   Configure setitimer to run Traffic every 500 ms.
+  struct sigaction sa_traffic;
+  sa_traffic.sa_handler = Traffic;
+  sa_traffic.sa_flags = 0;
+
+  struct itimerval timer;
+  timer.it_value.tv_sec = 0;
+  timer.it_value.tv_usec = 500000;
+  timer.it_interval.tv_sec = 0;
+  timer.it_interval.tv_usec = 500000;
+
+  if (sigaction(SIGALRM, &sa_traffic, NULL) == -1) {
+    perror("sigaction SIGALRM");
+    exit(1);
+  }
+
+  if (setitimer(ITIMER_REAL, &timer, NULL) == -1) {
+    perror("setitimer");
+    exit(1);
+  } 
+
+  // Traffic:
+  // a.    Calculate the number of planes waiting.
+  // b.    If planes in line >= 10, print "RUNWAY OVERLOADED".
+  // c.    If planes < PLANES_LIMIT, increase planes by 5 and send SIGUSR2 to the radio.
 }
