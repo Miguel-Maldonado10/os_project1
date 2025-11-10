@@ -22,13 +22,13 @@ total_takeoffs = 0  # total takeoffs
 runway1_lock = threading.Lock()
 runway2_lock = threading.Lock()
 state_lock = threading.Lock()
+planes_cv = threading.Condition(state_lock)
 
 def create_shared_memory():
     """Create shared memory segment for PID exchange"""
     # TODO 6:
     # 1. Encode (utf-8) the shared memory name to use with shm_open
-    shm_name = b"/air_control_shm"
-    shm_name.encode(encoding='utf-8')
+    shm_name = "/air_control_shm".encode("utf-8")
     # 2. Temporarily adjust the permission mask (umask) so the memory can be created with appropriate permissions
     old_umask = os.umask(0o011)
     # 3. Use _libc.shm_open to create the shared memory
@@ -48,11 +48,10 @@ def HandleUSR2(signum, frame):
     """Handle external signal indicating arrival of 5 new planes.
     Complete function to update waiting planes"""
     global planes
-    # TODO 4: increment the global variable planes
-    state_lock.acquire()
-    planes += 5
-    state_lock.release()
-    pass
+    # increment planes and notify waiting threads
+    with planes_cv:
+        planes += 5
+        planes_cv.notify_all()
 
 
 def TakeOffFunction(agent_id: int):
@@ -62,41 +61,47 @@ def TakeOffFunction(agent_id: int):
 
     # TODO: implement the logic to control a takeoff thread
     # Use a loop that runs while total_takeoffs < TOTAL_TAKEOFFS
-    while total_takeoffs < TOTAL_TAKEOFFS:
-        
-    # Use runway1_lock or runway2_lock to simulate runway being locked
-        if runway1_lock.locked() == False:
+    while True:
+        # wait until there is a plane available or total reached
+        with planes_cv:
+            while planes <= 0 and total_takeoffs < TOTAL_TAKEOFFS:
+                planes_cv.wait(timeout=0.1)
+            if total_takeoffs >= TOTAL_TAKEOFFS:
+                break
+            # consume one plane safely
+            planes -= 1
+            total_takeoffs += 1
+            takeoffs += 1
+
+        # acquire a runway (try runway1 first, otherwise block on runway2)
+        if runway1_lock.acquire(blocking=False):
             runway_lock = runway1_lock
         else:
+            runway2_lock.acquire()
             runway_lock = runway2_lock
-        runway_lock.acquire()
-    # Use state_lock for safe access to shared variables (planes, takeoffs, total_takeoffs)
-        state_lock.acquire()
-        planes -= 1
-        takeoffs += 1
-        total_takeoffs += 1
-    # Simulate the time a takeoff takes with sleep(1)
         time.sleep(1)
-    # Send SIGUSR1 every 5 local takeoffs
-        if takeoffs == 5:
-            os.kill(shm_data[2], signal.SIGUSR1)
+
+        # Send SIGUSR1 every 5 local takeoffs (signal radio)
+        if takeoffs >= 5:
+            os.kill(shm_data[1], signal.SIGUSR1)
             takeoffs = 0
-    # Send SIGTERM when the total takeoffs target is reached
-        if total_takeoffs >= TOTAL_TAKEOFFS:
-            os.kill(shm_data[1], signal.SIGTERM)
-    state_lock.release()
-    runway_lock.release()
-    pass
+
+        # If overall target reached, notify radio to stop
+        with state_lock:
+            if total_takeoffs >= TOTAL_TAKEOFFS:
+                os.kill(shm_data[1], signal.SIGTERM)
+        runway_lock.release()
 
 
 def launch_radio():
     """unblock the SIGUSR2 signal so the child receives it"""
-    def _unblock_sigusr2():
+    def unblock_sigusr2():
         signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGUSR2})
+    radio_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "radio"))
 
     # TODO 8: Launch the external 'radio' process using subprocess.Popen()
-    process = subprocess.Popen(["python3", "PP1/air_control_py/radio.py"],
-                               preexec_fn=_unblock_sigusr2)
+    process = subprocess.Popen([radio_path, "/air_control_shm"], 
+                               preexec_fn=unblock_sigusr2)
     return process
 
 
